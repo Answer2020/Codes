@@ -1,0 +1,39 @@
+function deepnet=TwoAE(xTrainImages,hiddenUnitNumbers,pretrainingIterations,fineTuningIterations,tTrain1, tTrain);
+%TwoAE() build a SAE with two layers and train it with the training data.
+
+%First AE
+hiddenSize1 = hiddenUnitNumbers;
+autoenc1 = trainAutoencoder(xTrainImages,hiddenSize1, ...
+    'MaxEpochs',pretrainingIterations, ...
+    'L2WeightRegularization',0.004, ...
+    'SparsityRegularization',2, ...
+    'SparsityProportion',0.8, ...
+    'ScaleData', true, ...
+    'UseGPU', true);
+feat1 = encode(autoenc1,xTrainImages);
+
+%%
+%Second AE
+hiddenSize2 = hiddenUnitNumbers;
+autoenc2 = trainAutoencoder(feat1,hiddenSize2, ...
+    'MaxEpochs',pretrainingIterations, ...
+    'L2WeightRegularization',0.002, ...
+    'SparsityRegularization',2, ...
+    'SparsityProportion',0.85, ...
+    'ScaleData', true, ...
+    'UseGPU', true);
+% view(autoenc2)
+feat2 = encode(autoenc2,feat1);
+
+
+
+%%
+%Training the softmax layer
+softnet = trainSoftmaxLayer(feat2,tTrain1,'MaxEpochs',fineTuningIterations);
+% view(softnet)
+%%
+%Stacking the AEs one after another to build the SAE
+deepnet = stack(autoenc1,autoenc2,softnet);
+
+%Training the SAE using our training data
+deepnet = train(deepnet,xTrainImages,tTrain,'useGPU','only');
