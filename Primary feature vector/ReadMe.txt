@@ -1,3 +1,4 @@
-This repository includes my Matlab Codes for my proposed method using distance transform based spatial feature vectors. 
+This repository includes my Matlab Codes for my proposed method using distance transform based primary spatial feature vector. 
+The dataset used in this codes can be accessed through: http://www.ehu.eus/ccwintco/index.php/Hyperspectral_Remote_Sensing_Scenes
 Please start by running this file:
 PaviaUProposedMethod.m
